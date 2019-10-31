@@ -45,6 +45,7 @@ RUN go get golang.org/x/tools/go/packages
 
 # go-fuzz-build is the tool that instruments Go files.
 RUN go get github.com/dvyukov/go-fuzz/go-fuzz-build
+RUN go get github.com/mdempsky/go114-fuzz-build
 
 # Default build flags for various sanitizers.
 ENV SANITIZER_FLAGS_address "-fsanitize=address -fsanitize-address-use-after-scope"
@@ -100,6 +101,13 @@ RUN mkdir honggfuzz && \
     cd honggfuzz && \
     tar -xzv --strip-components=1 -f $SRC/oss-fuzz.tar.gz && \
     rm -rf $SRC/oss-fuzz.tar.gz
+
+RUN git clone https://go.googlesource.com/go go-wip && \
+    cd go-wip && \
+    git fetch origin refs/changes/87/203887/5 && \
+    git checkout FETCH_HEAD && \
+    cd src && \
+    ./make.bash
 
 COPY compile compile_afl compile_dataflow compile_libfuzzer compile_honggfuzz \
     srcmap write_labels.py /usr/local/bin/
